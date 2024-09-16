@@ -24,6 +24,7 @@ app.post('/process', upload.single('image'), async (req, res) => {
   if (!imagePath) return res.status(400).json({ error: 'Image is required' });
 
   try {
+    
     const processedImage = await sharp(imagePath)
       .png()
       .rotate(Number(rotation) || 0)
@@ -33,8 +34,13 @@ app.post('/process', upload.single('image'), async (req, res) => {
         lightness: Number(lightness) || 1,
      })
       .toBuffer();
+     const resizeImage=await sharp(processedImage)
+                         .png({compressionLevel:1})
+                         .resize(200, 200)
+                         .toBuffer()
       res.set('Content-Type', 'image/jpeg');
-      res.send(processedImage);
+      res.send(resizeImage);
+
   } catch (err) {
     res.status(500).json({ error: 'Processing failed' });
   } 
